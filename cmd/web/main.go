@@ -9,7 +9,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Create a handler for serving static files at ./ui/static directory from the project root directory
-	fileServer := http.FileServer(http.Dir("./ui/static"))
+	fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
 
 	// Register the fileServer to /static/ URL path, we must strip the /static from the URL
 	// If we didn't strip it, the fileServer handler path will look for a file in ./ui/static/static/ which doesn't exist
