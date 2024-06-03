@@ -4,13 +4,28 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 )
+
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
 	flag.Parse()
 
+	// Create new loggers, use bitwire OR operator | to combine flags
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Llongfile)
+
+	// Initializing a new instance of application struct, containing the dependencies
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
 	mux := http.NewServeMux()
 
 	// Create a handler for serving static files at ./ui/static directory from the project root directory
@@ -21,11 +36,19 @@ func main() {
 	// Using the StripPrefix, the path that passed to fileServer handler will become ./ui/static/ which is a valid path
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("GET /", home)
-	mux.HandleFunc("GET /snippet/view", snippetView)
-	mux.HandleFunc("POST /snippet/create", snippetCreate)
+	mux.HandleFunc("GET /", app.home)
+	mux.HandleFunc("GET /snippet/view", app.snippetView)
+	mux.HandleFunc("POST /snippet/create", app.snippetCreate)
 
-	log.Println("Starting server on :4000")
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	srv := http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
+	infoLog.Printf("Starting server on %s", *addr) // Information message
+	err := srv.ListenAndServe()
+
+	// Fatal and Panic are recommended to use inside main function only
+	errorLog.Fatal(err) // Error message, exit when occured
 }
