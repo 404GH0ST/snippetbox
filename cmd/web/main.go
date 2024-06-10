@@ -24,7 +24,6 @@ func main() {
 
 	flag.Parse()
 
-	// Create new loggers, use bitwire OR operator | to combine flags
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
@@ -32,6 +31,7 @@ func main() {
 	db, err := openDB(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	defer db.Close()
@@ -39,6 +39,7 @@ func main() {
 	templateCache, err := newTemplateCache()
 	if err != nil {
 		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initializing a new instance of application struct, containing the dependencies
@@ -62,6 +63,7 @@ func openDB(dsn string) (*sql.DB, error) {
 	}
 
 	if err = db.Ping(); err != nil {
+		db.Close()
 		return nil, err
 	}
 
