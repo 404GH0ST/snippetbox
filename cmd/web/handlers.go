@@ -27,14 +27,14 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	// Make sure it's a valid positive integer
 	if err != nil || id < 1 {
-		app.notFound(w)
+		http.NotFound(w, r)
 		return
 	}
 
 	snippet, err := app.snippets.Get(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
+			http.NotFound(w, r)
 		} else {
 			app.serverError(w, r, err)
 		}
@@ -62,5 +62,5 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusCreated)
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }

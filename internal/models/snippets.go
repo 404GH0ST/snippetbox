@@ -40,25 +40,25 @@ func (m *SnippetModel) Insert(title string, content string, expires int) (int, e
 	return int(id), nil
 }
 
-func (m *SnippetModel) Get(id int) (*Snippet, error) {
+func (m *SnippetModel) Get(id int) (Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
 	row := m.DB.QueryRow(stmt, id)
 
-	s := &Snippet{}
+	var s Snippet
 
 	err := row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrNoRecord
+			return Snippet{}, ErrNoRecord
 		} else {
-			return nil, err
+			return Snippet{}, err
 		}
 	}
 	return s, nil
 }
 
-func (m *SnippetModel) Latest() ([]*Snippet, error) {
+func (m *SnippetModel) Latest() ([]Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
 	rows, err := m.DB.Query(stmt)
@@ -69,10 +69,10 @@ func (m *SnippetModel) Latest() ([]*Snippet, error) {
 	// Must defer after error check, if not then it will try to close a nil resultset
 	defer rows.Close()
 
-	snippets := []*Snippet{}
+	var snippets []Snippet
 
 	for rows.Next() {
-		s := &Snippet{}
+		s := Snippet{}
 
 		err := rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 		if err != nil {

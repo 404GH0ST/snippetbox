@@ -12,14 +12,17 @@ import (
 // any dynamic data that we want to pass to our HTML templates.
 type templateData struct {
 	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
+	Snippet     models.Snippet
+	Snippets    []models.Snippet
 }
 
 func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
 }
 
+// Initialize a template.FuncMap object and store it in a global variable. This is
+// essentially a string-keyed map which acts as a lookup between the names of our
+// custom template function and the function themselves.
 var functions = template.FuncMap{
 	"humanDate": humanDate,
 }
@@ -35,6 +38,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
+		// Register custom template functions
 		// The template.FuncMap must be registered with the template set before you
 		// call the ParseFiles() method. This means we have to use template.New() to
 		// create an empty template set, use the Funcs() method to register the

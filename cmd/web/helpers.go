@@ -24,10 +24,6 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *application) notFound(w http.ResponseWriter) {
-	app.clientError(w, http.StatusNotFound)
-}
-
 func (app *application) render(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -44,6 +40,9 @@ func (app *application) render(
 
 	buf := new(bytes.Buffer)
 
+	// Write the template to the buffer, instead of straight to the
+	// http.ResponseWriter. If there's an error, call our serverError() helper
+	// and then return.
 	err := ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, r, err)
