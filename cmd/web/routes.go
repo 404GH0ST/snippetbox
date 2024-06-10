@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	// Create a handler for serving static files at ./ui/static directory from the project root directory
@@ -22,5 +22,8 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	// Pass the servemux as the 'next' parameter to the commonHeaders middleware.
+	// Flow of control down the chain : commonHeaders -> servemux -> application handler
+	// Flow of control back the chain : application handler -> servemux -> commonHeaders
+	return commonHeaders(mux)
 }
