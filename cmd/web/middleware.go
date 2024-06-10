@@ -18,3 +18,18 @@ func commonHeaders(next http.Handler) http.Handler {
 		// Any code here will execute on the way back up the chain.
 	})
 }
+
+func (app *application) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			ip     = r.RemoteAddr
+			proto  = r.Proto
+			method = r.Method
+			url    = r.URL.RequestURI()
+		)
+
+		app.logger.Info("received request", "ip", ip, "proto", proto, "method", method, "url", url)
+
+		next.ServeHTTP(w, r)
+	})
+}
