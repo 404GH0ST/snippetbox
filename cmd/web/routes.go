@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
@@ -22,8 +26,9 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	// Pass the servemux as the 'next' parameter to the commonHeaders middleware.
 	// Flow of control down the chain : recoverPanic -> logRequest -> commonHeaders -> servemux -> application handler
 	// Flow of control back the chain : application handler -> servemux -> commonHeaders -> logRequest -> recoverPanic
-	return app.recoverPanic(app.logRequest(commonHeaders(mux)))
+	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
+
+	return standard.Then(mux)
 }
