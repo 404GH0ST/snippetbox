@@ -16,8 +16,11 @@ func (app *application) routes() *http.ServeMux {
 	// Restrict sub-tree path to match only /
 	mux.HandleFunc("GET /{$}", app.home)
 
-	mux.HandleFunc("GET /snippet/view", app.snippetView)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreate)
+	// add wildcard pattern, id segment in the route
+	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+
+	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
+	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
 	return mux
 }
