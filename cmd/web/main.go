@@ -48,13 +48,8 @@ func main() {
 		templateCache: templateCache,
 	}
 
-	srv := &http.Server{
-		Addr:    *addr,
-		Handler: app.routes(),
-	}
-
-	logger.Info("Starting server on ", "addr", *addr)
-	err = srv.ListenAndServe()
+	logger.Info("starting server", "addr", *addr)
+	err = http.ListenAndServe(*addr, app.routes())
 
 	logger.Error(err.Error())
 	os.Exit(1)
