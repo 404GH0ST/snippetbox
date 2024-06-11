@@ -17,14 +17,18 @@ func (app *application) routes() http.Handler {
 	// Using the StripPrefix, the path that passed to fileServer handler will become ./ui/static/ which is a valid path
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	// Because the alice.ThenFunc() methods returns a http.handler (rather than http.HandlerFunc) we also
+	// need to switch to registering the route using the mux.handle() method.
 	// Restrict sub-tree path to match only /
-	mux.HandleFunc("GET /{$}", app.home)
+	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
 	// add wildcard pattern, id segment in the route
-	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
 
-	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
+	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// Flow of control down the chain : recoverPanic -> logRequest -> commonHeaders -> servemux -> application handler
 	// Flow of control back the chain : application handler -> servemux -> commonHeaders -> logRequest -> recoverPanic
