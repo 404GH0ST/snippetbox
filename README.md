@@ -79,3 +79,16 @@ mkdir tls && cd tls
 mkcert -install
 mkcert -cert-file cert.pem -key-file key.pem localhost
 ```
+
+## Create a users Table
+```sql
+CREATE TABLE users (
+    id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    hashed_password CHAR(60) NOT NULL,
+    created DATETIME NOT NULL
+);
+
+ALTER TABLE users ADD CONSTRAINT users_uc_email UNIQUE (email);
+```

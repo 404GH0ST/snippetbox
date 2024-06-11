@@ -29,6 +29,11 @@ func (app *application) routes() http.Handler {
 
 	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
 	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
+	mux.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
+	mux.Handle("POST /user/signup", dynamic.ThenFunc(app.userSignupPost))
+	mux.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
+	mux.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
+	mux.Handle("POST /user/logout", dynamic.ThenFunc(app.userLogoutPost))
 
 	// Flow of control down the chain : recoverPanic -> logRequest -> commonHeaders -> servemux -> application handler
 	// Flow of control back the chain : application handler -> servemux -> commonHeaders -> logRequest -> recoverPanic
