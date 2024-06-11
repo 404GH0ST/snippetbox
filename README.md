@@ -72,3 +72,10 @@ CREATE TABLE sessions (
 
 CREATE INDEX sessions_expiry_idx ON sessions(expiry);
 ```
+
+## Generate a trusted self-signed certificate
+```bash
+mkdir tls && cd tls
+mkcert -install
+mkcert -cert-file cert.pem -key-file key.pem localhost
+```
