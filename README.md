@@ -7,6 +7,7 @@ go get github.com/justinas/alice@v1
 go get github.com/go-playground/form/v4@v4
 go get github.com/alexedwards/scs/v2@v2
 go get github.com/alexedwards/scs/mysqlstore@latest
+go get golang.org/x/crypto/bcrypt@latest
 ```
 
 ## Creating Database
