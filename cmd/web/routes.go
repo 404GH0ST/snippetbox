@@ -17,7 +17,7 @@ func (app *application) routes() http.Handler {
 	// Using the StripPrefix, the path that passed to fileServer handler will become ./ui/static/ which is a valid path
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	// Because the alice.ThenFunc() methods returns a http.handler (rather than http.HandlerFunc) we also
 	// need to switch to registering the route using the mux.handle() method.
