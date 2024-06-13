@@ -22,6 +22,8 @@ func (app *application) routes() http.Handler {
 	// Use embedded filesystem instead
 	mux.Handle("GET /static/", http.FileServer(neuteredFileSystem{http.FS(ui.Files)}))
 
+	mux.HandleFunc("GET /ping", ping)
+
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	// Because the alice.ThenFunc() methods returns a http.handler (rather than http.HandlerFunc) we also
