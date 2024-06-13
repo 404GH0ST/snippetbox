@@ -2,10 +2,12 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 
 	"github.com/404GH0ST/snippetbox/internal/models"
+	"github.com/404GH0ST/snippetbox/ui"
 )
 
 // Define a templateData type to act as the holding structure for
@@ -34,7 +36,7 @@ var functions = template.FuncMap{
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.html")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -44,21 +46,17 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 		// Register custom template functions
 		// The template.FuncMap must be registered with the template set before you
-		// call the ParseFiles() method. This means we have to use template.New() to
+		// call the ParseFS() method. This means we have to use template.New() to
 		// create an empty template set, use the Funcs() method to register the
 		// template.FuncMap, and then parse the file as normal
 
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.html")
-		if err != nil {
-			return nil, err
+		patterns := []string{
+			"html/base.html",
+			"html/partials/*.html",
+			page,
 		}
 
-		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
-		if err != nil {
-			return nil, err
-		}
-
-		ts, err = ts.ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
