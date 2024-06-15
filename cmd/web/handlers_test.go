@@ -88,7 +88,7 @@ func TestUserSignup(t *testing.T) {
 
 	const (
 		validName     = "Bob"
-		validPassword = "validPa$$word"
+		validPassword = "validpa$$word"
 		validEmail    = "bob@example.com"
 		formTag       = `<form action="/user/signup" method="POST" novalidate>`
 	)
@@ -191,4 +191,32 @@ func TestUserSignup(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSnippetCreate(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	t.Run("Unauthenticated", func(t *testing.T) {
+		code, headers, _ := ts.get(t, "/snippet/create")
+
+		assert.Equal(t, code, http.StatusSeeOther)
+		assert.StringContains(t, headers.Get("Location"), "/user/login")
+	})
+
+	t.Run("Authenticated", func(t *testing.T) {
+		_, _, body := ts.get(t, "/user/login")
+		csrfToken := extractCSRFToken(t, body)
+
+		form := url.Values{}
+		form.Add("email", "junken84@example.com")
+		form.Add("password", "s3cur3p4ssw0rd")
+		form.Add("csrf_token", csrfToken)
+		ts.postForm(t, "/user/login", form)
+		code, _, body := ts.get(t, "/snippet/create")
+
+		assert.Equal(t, code, http.StatusOK)
+		assert.StringContains(t, body, `<form action="/snippet/create" method="POST">`)
+	})
 }

@@ -30,6 +30,7 @@ func (app *application) routes() http.Handler {
 	// need to switch to registering the route using the mux.handle() method.
 	// Restrict sub-tree path to match only /
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("GET /about", dynamic.ThenFunc(app.about))
 
 	// add wildcard pattern, id segment in the route
 	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
@@ -40,6 +41,7 @@ func (app *application) routes() http.Handler {
 
 	protected := dynamic.Append(app.requireAuthentication)
 
+	mux.Handle("GET /account/view", protected.ThenFunc(app.accountView))
 	mux.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
 	mux.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
 	mux.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))

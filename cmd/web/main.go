@@ -19,6 +19,7 @@ import (
 )
 
 type application struct {
+	debugMode      bool
 	logger         *slog.Logger
 	snippets       models.SnippetModelInterface
 	users          models.UserModelInterface
@@ -30,6 +31,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:summer2024@/snippetbox?parseTime=true", "MySQL data source name")
+	debugMode := flag.Bool("debug", false, "Enable debug mode")
 
 	flag.Parse()
 
@@ -62,6 +64,7 @@ func main() {
 
 	// Initializing a new instance of application struct, containing the dependencies
 	app := &application{
+		debugMode:      *debugMode,
 		logger:         logger,
 		snippets:       &models.SnippetModel{DB: db},
 		users:          &models.UserModel{DB: db},

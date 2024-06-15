@@ -235,6 +235,11 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 
+	redirectURL := app.sessionManager.PopString(r.Context(), "redirectPathAfterLogin")
+	if redirectURL != "" {
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+		return
+	}
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
@@ -250,6 +255,30 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "about.html", data)
+}
+
+func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
+	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+
+	user, err := app.users.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		} else {
+			app.serverError(w, r, err)
+		}
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.User = user
+
+	app.render(w, r, http.StatusOK, "account.html", data)
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
