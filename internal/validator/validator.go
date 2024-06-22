@@ -40,6 +40,10 @@ func (v *Validator) CheckField(ok bool, key, message string) {
 	}
 }
 
+func Equal[T comparable](value1, value2 T) bool {
+	return value1 == value2
+}
+
 func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
 }

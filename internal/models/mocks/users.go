@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/404GH0ST/snippetbox/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserModel struct{}
@@ -46,4 +47,17 @@ func (m *UserModel) Get(id int) (models.User, error) {
 		return u, nil
 	}
 	return models.User{}, models.ErrNoRecord
+}
+
+func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	if id == 1 {
+		hashedPassword := []byte("$2a$12$NuTjWXm3KKntReFwyBVHyuf/to.HewTy.eS206TNfkGfr6HzGJSWG")
+		err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(currentPassword))
+		if err != nil {
+			return models.ErrInvalidCredentials
+		}
+		return nil
+	}
+
+	return models.ErrNoRecord
 }
