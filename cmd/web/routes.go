@@ -45,6 +45,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
 	mux.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
 	mux.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
+	mux.Handle("GET /account/password/update", protected.ThenFunc(app.accountPasswordUpdate))
+	mux.Handle("POST /account/password/update", protected.ThenFunc(app.accountPasswordUpdatePost))
 
 	// Flow of control down the chain : recoverPanic -> logRequest -> commonHeaders -> servemux -> application handler
 	// Flow of control back the chain : application handler -> servemux -> commonHeaders -> logRequest -> recoverPanic
